@@ -1,5 +1,5 @@
 
-object App extends App {
+object Test extends App {
 
   // Il nous manque : mise ne cache dans un fichier (test d'abord au sein de la structure, sinon recherche du fichier si possible et enreghistrement au sein du dictionnaire, et enfin sinon on fait la requete HTTP, on en registre dans le dictionnaire et on enregistre le fichier
   //  Essayez d'écrire du code générique en privilégiant les valeurs immutables, les compréhensions et la programmation d'ordre supérieur.
