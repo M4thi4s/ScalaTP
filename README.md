@@ -1,6 +1,10 @@
 TMDB Scala Project
 ------------------
 
+Pierre-Alexandre MARTIN et
+Mathias NOCET <br>
+Utilisation de Chat GPT 4 et GitHub Copilot
+
 Ce projet est une application Scala qui interagit avec l'API TMDB pour obtenir des informations sur les acteurs et les films.
 
 Configuration:
