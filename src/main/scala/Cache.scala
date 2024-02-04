@@ -15,7 +15,7 @@ object Cache {
   final private var movieDirectorCache: Map[Int, (Int, String)] = Map()
   final private var collaborationCache: Map[(FullName, FullName), Set[(String, String)]] = Map()
 
-  private val cacheDir = "Datas"
+  private val cacheDir = "data"
   private val actorDir = s"$cacheDir/actor"
   private val actorMovieDir = s"$cacheDir/actorMovie"
   private val movieDirectorDir = s"$cacheDir/movieDirector"
@@ -56,9 +56,14 @@ object Cache {
   }
 
   def getCollaborationCache(actor1: FullName, actor2: FullName): Option[Set[(String, String)]] = {
-    collaborationCache.get((actor1, actor2))
-      .orElse(readCacheFromFile[Set[(String, String)]](s"$cacheDir/collaboration/${actor1}_${actor2}.json"))
+  collaborationCache.get((actor1, actor2)).orElse {
+    val collaborationDataFromFile = readCacheFromFile[Set[(String, String)]](s"$cacheDir/collaboration/${actor1}_${actor2}.json")
+    collaborationDataFromFile.foreach { data =>
+      collaborationCache += ((actor1, actor2) -> data)
+    }
+    collaborationDataFromFile
   }
+}
 
   def cacheCollaboration(actor1: FullName, actor2: FullName, movies: Set[(String, String)]): Unit = {
     collaborationCache += ((actor1, actor2) -> movies)
@@ -66,9 +71,14 @@ object Cache {
   }
 
   def getCachedActorMovieData(actorId: Int): Option[Set[(Int, String)]] = {
-    actorMovieCache.get(actorId)
-      .orElse(readCacheFromFile[Set[(Int, String)]](s"$cacheDir/actorMovie/$actorId.json"))
+  actorMovieCache.get(actorId).orElse {
+    val actorMovieDataFromFile = readCacheFromFile[Set[(Int, String)]](s"$cacheDir/actorMovie/$actorId.json")
+    actorMovieDataFromFile.foreach { data =>
+      actorMovieCache += (actorId -> data)
+    }
+    actorMovieDataFromFile
   }
+}
 
   def cacheActorMovieData(actorId: Int, data: Set[(Int, String)]): Unit = {
     actorMovieCache += (actorId -> data)
@@ -76,8 +86,20 @@ object Cache {
   }
 
   def getCachedActorId(firstName: String, lastName: String): Option[Int] = {
-    actorCache.get((firstName, lastName))
-      .orElse(readCacheFromFile[IntWrapper](s"$cacheDir/actor/${firstName}_$lastName.json").map(_.value))
+    actorCache.get((firstName, lastName)).orElse {
+      val actorIdFromFile = readCacheFromFile[IntWrapper](s"$cacheDir/actor/${firstName}_$lastName.json").map(_.value)
+      actorIdFromFile.foreach { id =>
+        actorCache += ((firstName, lastName) -> id)
+      }
+      actorIdFromFile
+    }
+  }
+  private def getCachedActorName(actorId: Int): FullName = {
+    val fullName = actorCache.find(_._2 == actorId).map(_._1)
+    fullName match {
+      case Some((firstName, lastName)) => FullName(firstName, lastName)
+      case None => throw new Exception(s"Impossible de trouver l'acteur avec l'ID $actorId dans le cache.")
+    }
   }
 
   def cacheActorId(firstName: String, lastName: String, id: Int): Unit = {
@@ -85,9 +107,14 @@ object Cache {
     writeCacheToFile(s"$cacheDir/actor/${firstName}_$lastName.json", IntWrapper(id))
   }
   def getCachedMovieData(movieId: Int): Option[(Int, String)] = {
-    movieDirectorCache.get(movieId)
-      .orElse(readCacheFromFile[(Int, String)](s"$cacheDir/movieDirector/$movieId.json"))
+  movieDirectorCache.get(movieId).orElse {
+    val movieDataFromFile = readCacheFromFile[(Int, String)](s"$cacheDir/movieDirector/$movieId.json")
+    movieDataFromFile.foreach { data =>
+      movieDirectorCache += (movieId -> data)
+    }
+    movieDataFromFile
   }
+}
 
   def cacheMovieData(movieId: Int, data: (Int, String)): Unit = {
     movieDirectorCache += (movieId -> data)
@@ -117,7 +144,7 @@ object Cache {
 
     val mostFrequentPairs = pairCounts.toSeq.sortBy(-_._2).take(10) // Prendre les 10 paires les plus fréquentes
     mostFrequentPairs.foreach { case ((actorId1, actorId2), count) =>
-      println(s"Acteurs $actorId1 et $actorId2 ont joué ensemble dans $count films.")
+      println(s"Les acteurs ${getCachedActorName(actorId1)} et ${getCachedActorName(actorId2)} ont joué ensemble dans $count film(s).")
     }
   }
 }

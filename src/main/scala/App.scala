@@ -53,13 +53,16 @@ object App extends App {
    */
 
   // TEST findActorId
-  TmdbApi.findActorId("Christian", "Bale")
+  private val danId = TmdbApi.findActorId(danielRadcliffe.firstname, danielRadcliffe.lastname)
+  private val emId = TmdbApi.findActorId(emmaWatson.firstname, emmaWatson.lastname)
 
   // TEST findMovieId
   TmdbApi.collaboration(emmaWatson, danielRadcliffe)
 
   // TEST findActorMovies
   TmdbApi.findActorMovies(actorId.get)
+  TmdbApi.findActorMovies(danId.get)
+  TmdbApi.findActorMovies(emId.get)
 
   // TEST findMovieDirector
   TmdbApi.findMovieDirector(movieId)
